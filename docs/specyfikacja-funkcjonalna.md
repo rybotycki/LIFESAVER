@@ -1,6 +1,6 @@
 # Lifesaver — specyfikacja funkcjonalna v1.0
 
-**Status:** wymagania wstępnie zatwierdzone. Zakres E2EE i sposób kontroli dostępu do pozostałych danych zostały następnie zaakceptowane w [ADR-001](adr.md#adr-001). Kwestie do doprecyzowania są zebrane w [liście otwartej](kwestie-otwarte.md).
+**Stan na 9 listopada 2026.** Specyfikacja opisuje docelowy zakres prywatnej PWA oraz aktualne zachowanie MVP. W środowisku testowym działa osiem zwykłych nawyków, Historia i personalizacja. Strefa prywatna, cele tygodniowe i przypomnienia pozostają do wdrożenia. [ADR](adr.md) · [Kwestie otwarte](kwestie-otwarte.md)
 
 ## 1. Cel
 
@@ -8,11 +8,11 @@ Lifesaver to prywatna PWA dla jednej osoby. Służy do codziennego śledzenia na
 
 ## 2. Platformy i dostęp
 
-- Aplikacja jest dostępna na iPhonie i komputerze. Historia i ustawienia synchronizują się między urządzeniami.
+- Interfejs projektujemy przede wszystkim na iPhone’a. Aplikacja działa też w przeglądarce na komputerze. Historia i ustawienia zwykłych nawyków synchronizują się między urządzeniami.
 - Użytkownik loguje się kontem Google. Firebase Authentication i reguły Firestore chronią dane poza zakresem E2EE.
-- E2EE obejmuje wyłącznie dwa prywatne nawyki z tabeli i prywatny licznik, wraz z danymi, które ujawniają ich treść lub wyniki. Dostęp do tych danych wymaga osobnej blokady i sposobu odzyskiwania.
+- E2EE obejmuje wyłącznie dwa nawyki strefy prywatnej i prywatny licznik, wraz z danymi, które ujawniają ich treść lub wyniki. Dostęp do tych danych wymaga osobnej blokady i sposobu odzyskiwania.
 - Ekrany ogólnodostępne i powiadomienia ukrywają informacje prywatne.
-- Preferowane są usługi darmowe, bez obowiązkowego abonamentu. Wybór pozostałych technologii opisuje [propozycja architektury](architektura.md).
+- Preferowane są usługi darmowe, bez obowiązkowego abonamentu. PWA służy prywatnemu użytkowaniu. Ewentualne publiczne wydanie iOS w App Store ma być płatne jednorazowo, bez abonamentu. Cena i sposób dystrybucji technicznej pozostają otwarte. [Architektura](architektura.md) · [ADR-007](adr.md#adr-007)
 
 ## 3. Nawyki codzienne na start
 
@@ -25,21 +25,22 @@ Lifesaver to prywatna PWA dla jednej osoby. Służy do codziennego śledzenia na
 | 5 | Spacer | Co najmniej 15 minut |
 | 6 | Nauka zawodowa | Co najmniej 1 minuta rzeczywistej nauki |
 | 7 | TikTok | Maksymalnie 120 minut dziennie |
-| 8 | Bez materiałów seksualnych w nocy | Brak korzystania od 00:00 do zaśnięcia. Nawyk prywatny |
-| 9 | Bez generowania materiałów seksualnych | Brak generowania takich materiałów w ciągu dnia. Nawyk prywatny |
-| 10 | Zaśnięcie przed 1:00 | Zaśnięcie przed 01:00 |
+| 8 | Zaśnięcie przed 1:00 | Zaśnięcie przed 01:00 |
 
-- Wszystkie początkowe cele można później zmienić. Przy nauce zawodowej aplikacja zapisuje rzeczywisty czas, niezależnie od progu zaliczenia. Zakres obejmuje m.in. SQL, Power BI, ETL i przygotowanie zawodowe w IT, z pominięciem zajęć na studiach. Cel 3–4 godzin dziennie służy jako punkt odniesienia poza oceną nawyku.
-- Sen zapisuje godzinę zaśnięcia i pobudki. Noc przypada na dzień pobudki. W v1 wystarczy ręczny zapis. Zasady interpretacji progu 01:00 przy przejściu przez północ wymagają doprecyzowania.
+- Wszystkie początkowe cele można później zmienić. Przy nauce zawodowej aplikacja zapisuje rzeczywisty czas, niezależnie od progu zaliczenia.
+- Zaśnięcie i pobudka mają osobne karty i oceny w Dzienniku. Noc przypada na dzień pobudki. Każdą godzinę można wpisać, skorygować lub wyczyścić osobno. Przy domyślnych progach zaśnięcie poprzedniego dnia albo przed 01:00 w dniu pobudki zalicza cel. Pobudka zalicza cel przed 09:00. Same godziny 01:00 i 09:00 są poza celem.
 - Czas TikToka można wprowadzać ręcznie. Użytkownik może później zmienić limit.
 
-## 4. Prywatny licznik masturbacji
+Dwa pozostałe nawyki startowe należą do strefy prywatnej. Ich konfiguracja pozostaje w specyfikacji lokalnej.
+
+## 4. Prywatny licznik
+
+**Status:** wymaganie do wdrożenia wraz ze strefą prywatną.
 
 - Moduł rejestruje dzienną liczbę zdarzeń. Przyciski zwiększają i zmniejszają wartość, a historię można korygować.
 - Jawne zero oznacza zarejestrowany wynik. Brak danych to osobny stan.
 - Moduł pokazuje statystyki dzienne, tygodniowe i miesięczne, średnią dzienną oraz trend.
-- Licznik służy obserwacji zachowań bez zawstydzania, limitów, automatycznej oceny i nagród za abstynencję. Pozostaje poza ogólnym wynikiem nawyków.
-- Profesjonalna pomoc przy zachowaniach kompulsywnych pozostaje poza zakresem modułu.
+- Licznik służy obserwacji zachowań bez zawstydzania, limitów, automatycznej oceny i nagród za określony wynik. Pozostaje poza ogólnym wynikiem nawyków.
 
 ## 5. Ocena nawyków
 
@@ -47,39 +48,40 @@ Lifesaver to prywatna PWA dla jednej osoby. Służy do codziennego śledzenia na
 | --- | --- | --- |
 | Tak | Warunek spełniony | 100% dla wpisu |
 | Nie | Warunek niespełniony | 0% dla wpisu |
-| Brak danych | Wpis jeszcze nieoceniony. Stan domyślny | Pomijany w mianowniku realizacji |
+| Brak danych | Pole godziny lub innej wartości bez domyślnego pomiaru pozostaje puste | Pomijany w mianowniku realizacji |
 
-Każdy wpis ma jeden stan. Przy nawykach z pomiarem aplikacja ocenia wpis według wartości i warunku nawyku. Pierwszeństwo ręcznej korekty statusu przy istniejącym pomiarze pozostaje otwarte.
+W nawykach Tak/Nie domyślną odpowiedzią jest „Nie”. Można ją zmieniać na „Tak” i z powrotem. Czas trwania zaczyna od 0 min. Puste godziny, liczby wykonań i inne pomiary liczbowe pozostają bez oceny. Przy nawykach mierzonych wynik oblicza się z pomiaru i obowiązującego warunku. MVP pozwala poprawić pomiar, z którego wynika ocena. [ADR-008](adr.md#adr-008)
 
 ## 6. Statystyki i analiza postępów
 
-- Aplikacja pokazuje ogólny procent realizacji codziennych nawyków, realizację każdego z nich oraz osobno kompletność danych.
-- Realizacja = liczba wpisów „Tak” ÷ liczba wpisów „Tak” i „Nie” × 100%.
-- Kompletność = liczba wpisów „Tak” i „Nie” ÷ liczba wszystkich wymaganych wpisów × 100%.
-- Przykład z fikcyjnymi danymi. 6 wpisów „Tak”, 2 „Nie” i 2 bez danych daje 75% realizacji oraz 80% kompletności. Przy braku ocen realizacja jest niedostępna. Gdy okres nie zawiera żadnych wymaganych wpisów, kompletność też nie ma podstawy do obliczenia.
+- MVP pokazuje realizację, kompletność i zestawienia według nawyku dla wybranego dnia lub tygodnia oraz zbiorcze podsumowanie miesiąca.
+- Realizacja = liczba zaliczonych pozycji ÷ liczba pozycji z wyliczoną oceną × 100%. Domyślne „Nie” i 0 min wpływają na realizację również przed zapisem.
+- Kompletność = liczba faktycznie zapisanych wartości ÷ liczba zaplanowanych pozycji × 100%. Jawnie zapisane „Nie” i zero liczą się jako zapisane wartości.
+- Przykład dla startowej listy w pustym dniu. Zero minut TikToka zalicza limit, pozostałe pięć pozycji z domyślną wartością daje „Nie”, a dwie puste godziny pomija się w ocenie. Wynik to 17% realizacji i 0% kompletności. Bez ocen realizacja jest niedostępna. Bez zaplanowanych pozycji nie ma także podstawy do obliczenia kompletności.
 - Wszystkie codzienne nawyki mają równą wagę. Pełny wynik uwzględnia oba prywatne nawyki z zachowaniem osobnej blokady. Sposób prezentacji wyniku w widoku ogólnym pozostaje do ustalenia.
-- Dostępne są wyniki tygodniowe, miesięczne i długoterminowe, porównania okresów i wykresy trendów. Każdy nawyk ma własny ekran z historią, wykresami i odpowiednimi pomiarami.
-- Filtrowanie według kategorii jest opcjonalne. Forma kalendarza historii i szczegóły wykresów pozostają otwarte.
+- Do wdrożenia pozostają porównania okresów, długoterminowe trendy i osobny ekran każdego nawyku z historią, wykresami i pomiarami. Widok szczegółowy nawyku jest wymagany. Filtrowanie według kategorii pozostaje poza zakresem v1.
 
 ## 7. Nawigacja i historia
 
+- Pływający dolny pasek w stylu Liquid Glass otwiera „Dziennik”, „Historię” i „Nawyki”. Na ekranie dotykowym poziome przesunięcie przełącza sąsiednie zakładki.
+- Historia pokazuje bieżący tydzień oraz statystyki wybranego dnia lub tygodnia. Kalendarz zawiera siedem pierścieni od poniedziałku do niedzieli i ósmy z wynikiem tygodnia. Wypełnienie oznacza realizację. Kalendarz można rozwinąć na pełny ekran, wybrać wcześniejszy tydzień albo przejść do miesiąca. Miesiąc pokazuje liczbę uzupełnionych pozycji pod każdą datą i otwiera Dziennik wybranego dnia. Bieżące okresy obejmują dni do dzisiaj włącznie.
 - Szybkie przejście do dzisiaj i wczoraj oraz dostęp do wszystkich wcześniejszych dni.
-- Edycja statusów, pomiarów, godzin i licznika w całej historii z automatycznym przeliczeniem statystyk.
+- Można edytować zwykłe wpisy i godziny w całej historii. Statystyki przeliczają się po korekcie. Edycja historii licznika będzie częścią strefy prywatnej.
 - Zaliczenie można zapisać wyłącznie dla bieżącej lub przeszłej daty aktywności.
 - Data aktywności jest odrębna od daty wprowadzenia i ostatniej zmiany informacji.
 
 ## 8. Cele tygodniowe
 
-Cele codzienne ocenia się osobno każdego dnia. Cele tygodniowe rozlicza się w skali tygodnia według liczby wykonań lub wartości, z własnymi wskaźnikami i statystykami. Początkowa lista celów tygodniowych jest pusta.
+Cele codzienne ocenia się osobno każdego dnia. Osobne cele tygodniowe są do wdrożenia. Będą rozliczane według liczby wykonań lub wartości, z własnymi wskaźnikami i statystykami. Początkowa lista będzie pusta. Obecne podsumowanie tygodnia agreguje nawyki codzienne.
 
 ## 9. Personalizacja
 
-Użytkownik może dodawać nawyki i cele, zmieniać nazwę, warunek, częstotliwość i wartości docelowe oraz archiwizować i przywracać nawyki z zachowaniem historii. Trwałe usunięcie wymaga potwierdzenia. Obsługiwane są nawyki oceniane bezpośrednio oraz cele mierzone czasem, liczbą wykonań lub inną wartością liczbową.
+W MVP można dodawać własne nawyki typu Tak/Nie, minuty, liczba wykonań lub wartość liczbowa. Można zmieniać nazwy, dni tygodnia i progi, archiwizować i przywracać nawyki z zachowaniem wpisów oraz ustalać wspólną kolejność Dziennika. Zmiana definicji obowiązuje od wybranej daty, od dzisiaj lub później. Wcześniejsze dni zachowują poprzednie zasady. Trwałe usunięcie po potwierdzeniu pozostaje do wdrożenia.
 
 ## 10. Codzienne korzystanie i przypomnienia
 
-- Wpis można zapisać od razu po wykonaniu lub uzupełnić zbiorczo później. Zapis wymaga możliwie małej liczby kroków.
-- Konfigurowalne przypomnienie wieczorne pomaga uzupełnić brakujące wpisy. Ma neutralną treść i pozostawia status wpisów bez zmian.
+- Wpis można zapisać od razu po wykonaniu lub uzupełnić zbiorczo później. Dziennik używa krótkich kart, aktywnego przycisku i pól pomiaru. Warunki zaliczenia są dostępne w zakładce „Nawyki”. Wybór Tak/Nie widać natychmiast, również podczas poprzedniego zapisu.
+- Do wdrożenia jest konfigurowalne przypomnienie wieczorne o brakujących wpisach. Ma neutralną treść i pozostawia status wpisów bez zmian.
 - Dodatkowe przypomnienia dla pojedynczych nawyków pozostają do ustalenia.
 
 ## 11. Filozofia produktu
